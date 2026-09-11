@@ -1,0 +1,12 @@
+# GitHub Linguist overrides
+prisma/migrations/* linguist-generated=true
+dist/* linguist-generated=true
+package-lock.json linguist-generated=true
+
+# Normalize line endings
+* text=auto eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.css text eol=lf

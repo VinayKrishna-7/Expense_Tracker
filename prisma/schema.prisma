@@ -1,0 +1,268 @@
+// Prisma Schema for ExpenseFlow FinTech Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  CASH
+  CREDIT_CARD
+  UPI_WALLET
+  INVESTMENT
+  OTHER
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum RecurringFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum RecurringStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAUSED
+}
+
+enum NotificationType {
+  BUDGET_ALERT
+  GOAL_REACHED
+  RECURRING_DUE
+  ANOMALY_ALERT
+  SYSTEM
+}
+
+model User {
+  id                    String                 @id @default(cuid())
+  name                  String
+  email                 String                 @unique
+  passwordHash          String
+  avatar                String?
+  currency              String                 @default("INR")
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  accounts              Account[]
+  transactions          Transaction[]
+  categories            Category[]
+  budgets               Budget[]
+  goals                 Goal[]
+  recurringTransactions RecurringTransaction[]
+  subscriptions         Subscription[]
+  notifications         Notification[]
+
+  @@map("users")
+}
+
+model Account {
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  type           AccountType   @default(CHECKING)
+  currency       String        @default("INR")
+  initialBalance Decimal       @default(0.0) @db.Decimal(12, 2)
+  currentBalance Decimal       @default(0.0) @db.Decimal(12, 2)
+  isLiability    Boolean       @default(false)
+  isActive       Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  transactions          Transaction[]
+  recurringTransactions RecurringTransaction[]
+  subscriptions         Subscription[]
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Category {
+  id                    String                 @id @default(cuid())
+  userId                String?                // null indicates global system category
+  user                  User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                  String
+  icon                  String                 @default("Tag")
+  color                 String                 @default("#6366f1")
+  type                  String                 @default("expense") // "expense" | "income"
+  isFixed               Boolean                @default(false)     // Fixed vs Variable expense classification
+  isCustom              Boolean                @default(false)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  transactions          Transaction[]
+  budgets               Budget[]
+  recurringTransactions RecurringTransaction[]
+  subscriptions         Subscription[]
+
+  @@index([userId])
+  @@map("categories")
+}
+
+model Transaction {
+  id                     String                @id @default(cuid())
+  userId                 String
+  user                   User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId              String?
+  account                Account?              @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  categoryId             String?
+  category               Category?             @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  type                   TransactionType       @default(EXPENSE)
+  amount                 Decimal               @db.Decimal(12, 2)
+  currency               String                @default("INR")
+  title                  String
+  date                   DateTime              @db.Date
+  paymentMethod          String                @default("UPI")
+  notes                  String?
+  isRecurring            Boolean               @default(false)
+  recurringTransactionId String?
+  recurringTransaction   RecurringTransaction? @relation(fields: [recurringTransactionId], references: [id], onDelete: SetNull)
+  transferId             String?               // Groups paired debit/credit transfer records
+  isFixed                Boolean               @default(false)
+  isSubscription         Boolean               @default(false)
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  deletedAt              DateTime?             // Soft delete timestamp
+
+  @@index([userId, date])
+  @@index([userId, categoryId])
+  @@index([userId, accountId])
+  @@map("transactions")
+}
+
+model Budget {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId   String
+  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  monthlyLimit Decimal   @db.Decimal(12, 2)
+  period       String    // e.g. "2026-09"
+  annualLimit  Decimal?  @db.Decimal(12, 2)
+  isOverall    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([userId, categoryId, period])
+  @@index([userId])
+  @@map("budgets")
+}
+
+model Goal {
+  id            String             @id @default(cuid())
+  userId        String
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  targetAmount  Decimal            @db.Decimal(12, 2)
+  currentAmount Decimal            @default(0.0) @db.Decimal(12, 2)
+  deadline      DateTime           @db.Date
+  category      String?            @default("General")
+  color         String             @default("#10b981")
+  icon          String             @default("ShieldCheck")
+  isCompleted   Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  contributions GoalContribution[]
+
+  @@index([userId])
+  @@map("goals")
+}
+
+model GoalContribution {
+  id        String   @id @default(cuid())
+  goalId    String
+  goal      Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  amount    Decimal  @db.Decimal(12, 2)
+  date      DateTime @db.Date
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([goalId])
+  @@map("goal_contributions")
+}
+
+model RecurringTransaction {
+  id              String             @id @default(cuid())
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId       String?
+  account         Account?           @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  categoryId      String?
+  category        Category?          @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  title           String
+  amount          Decimal            @db.Decimal(12, 2)
+  type            TransactionType    @default(EXPENSE)
+  frequency       RecurringFrequency @default(MONTHLY)
+  startDate       DateTime           @db.Date
+  endDate         DateTime?          @db.Date
+  nextOccurrence  DateTime           @db.Date
+  lastGeneratedAt DateTime?
+  status          RecurringStatus    @default(ACTIVE)
+  notes           String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  transactions    Transaction[]
+
+  @@index([userId, status])
+  @@map("recurring_transactions")
+}
+
+model Subscription {
+  id              String             @id @default(cuid())
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId       String?
+  account         Account?           @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  categoryId      String?
+  category        Category?          @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  name            String
+  amount          Decimal            @db.Decimal(12, 2)
+  billingCycle    String             @default("monthly") // "monthly" | "yearly"
+  nextBillingDate DateTime           @db.Date
+  status          SubscriptionStatus @default(ACTIVE)
+  icon            String             @default("Tv")
+  color           String             @default("#8b5cf6")
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([userId])
+  @@map("subscriptions")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  read      Boolean          @default(false)
+  actionUrl String?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, read])
+  @@map("notifications")
+}

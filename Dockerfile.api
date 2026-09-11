@@ -1,0 +1,31 @@
+# Multi-stage Dockerfile for Express API
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY tsconfig*.json ./
+COPY prisma ./prisma/
+
+RUN npm ci
+
+COPY server ./server/
+COPY src/types ./src/types/
+COPY src/constants ./src/constants/
+
+RUN npx prisma generate
+
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/server ./server
+COPY --from=builder /app/src/types ./src/types
+COPY --from=builder /app/src/constants ./src/constants
+
+EXPOSE 5000
+
+CMD ["npx", "tsx", "server/index.ts"]
