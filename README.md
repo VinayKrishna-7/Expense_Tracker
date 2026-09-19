@@ -1,4 +1,4 @@
-# 💎 ExpenseFlow — Production-Grade Full-Stack React FinTech Platform
+# 💎 ExpenseFlow — Personal Finance & Expense Management
 
 <div align="center">
 
@@ -22,7 +22,7 @@
 
 ## 🌟 Overview
 
-**ExpenseFlow** transforms standard expense tracking into a **comprehensive FinTech personal wealth management SaaS**. Designed with inspiration from Linear and Stripe, ExpenseFlow provides deep financial intelligence, multi-wallet balance sheet tracking, inter-account transfers, subscription renewal auditing, and automated spending anomaly detection.
+**ExpenseFlow** is a full-stack personal finance application built with React, TypeScript, Node.js, Express, PostgreSQL, and Prisma. It provides expense tracking, multiple accounts, budgets, financial goals, recurring subscriptions, analytics, and financial insights.
 
 ```mermaid
 graph TD
@@ -40,11 +40,11 @@ graph TD
 
 ---
 
-## ⚛️ React Engineering & Architecture
+## ⚛️ React Frontend Architecture
 
 ExpenseFlow showcases modern React design patterns, type safety, and clean separation of concerns:
 
-### 1. Advanced Custom React Hooks
+### 1. Custom React Hooks
 * **`useFinancialQueries`**: Wraps `@tanstack/react-query` to provide optimistic UI updates, background revalidation, query deduplication, and automatic cache invalidation on mutations across Accounts, Subscriptions, and Analytics.
 * **`useKeyboardShortcuts`**: Global listener for system-wide shortcuts (`Ctrl+K` for Command Palette, `N` for new transaction, `?` for help, direct page routing hotkeys).
 * **`useTheme`**: Multi-mode theme synchronizer for Light, Dark, and OS System preference with zero layout shift.
