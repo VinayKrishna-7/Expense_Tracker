@@ -10,15 +10,11 @@ import {
   Target,
   Settings,
   HelpCircle,
-  Sun,
-  Moon,
-  Laptop,
   ChevronLeft,
   ChevronRight,
   LogOut,
 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useSettingsStore } from '../../store/useSettingsStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { reloadAllUserStores } from '../../utils/userStoreSync';
 
@@ -34,8 +30,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenShortcuts,
 }) => {
   const navigate = useNavigate();
-  const theme = useSettingsStore((s) => s.settings.theme);
-  const setTheme = useSettingsStore((s) => s.setTheme);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
@@ -119,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Bottom Controls / Help / Theme / User */}
+      {/* Bottom Controls / Help / User */}
       <div className="p-3 border-t border-surface-100 dark:border-surface-800/80 space-y-2">
         {/* Help & Shortcuts Trigger */}
         <button
@@ -134,57 +128,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <HelpCircle size={18} />
           {!collapsed && <span>Shortcuts & Help</span>}
         </button>
-
-        {/* Theme Switcher */}
-        {!collapsed ? (
-          <div className="flex items-center justify-between p-1 bg-surface-100 dark:bg-surface-800 rounded-lg">
-            <button
-              type="button"
-              onClick={() => setTheme('light')}
-              className={clsx(
-                'flex-1 flex items-center justify-center py-1.5 rounded-md text-xs font-medium transition-all',
-                theme === 'light'
-                  ? 'bg-white text-surface-900 shadow-sm'
-                  : 'text-surface-500 hover:text-surface-900'
-              )}
-            >
-              <Sun size={14} className="mr-1.5" /> Light
-            </button>
-            <button
-              type="button"
-              onClick={() => setTheme('dark')}
-              className={clsx(
-                'flex-1 flex items-center justify-center py-1.5 rounded-md text-xs font-medium transition-all',
-                theme === 'dark'
-                  ? 'bg-surface-900 text-white shadow-sm'
-                  : 'text-surface-400 hover:text-white'
-              )}
-            >
-              <Moon size={14} className="mr-1.5" /> Dark
-            </button>
-            <button
-              type="button"
-              onClick={() => setTheme('system')}
-              className={clsx(
-                'flex-1 flex items-center justify-center py-1.5 rounded-md text-xs font-medium transition-all',
-                theme === 'system'
-                  ? 'bg-white dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm'
-                  : 'text-surface-500 hover:text-surface-900 dark:hover:text-white'
-              )}
-            >
-              <Laptop size={14} className="mr-1.5" /> Auto
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="w-full flex items-center justify-center p-2 rounded-lg text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
-            title="Toggle theme"
-          >
-            {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
-          </button>
-        )}
 
         {/* User Profile */}
         <div

@@ -2,6 +2,7 @@ import React from 'react';
 import { AlertTriangle, Lightbulb, CheckCircle, Info, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { FinancialInsight } from '../../types';
+import { useTransactionStore } from '../../store/useTransactionStore';
 
 interface InsightsFeedProps {
   insights?: FinancialInsight[];
@@ -9,11 +10,29 @@ interface InsightsFeedProps {
 }
 
 export const InsightsFeed: React.FC<InsightsFeedProps> = ({ insights = [], isLoading }) => {
+  const hasTransactions = useTransactionStore((s) => s.transactions.length > 0);
+
   if (isLoading) {
     return <div className="h-44 bg-slate-100 dark:bg-slate-800/50 rounded-2xl animate-pulse" />;
   }
 
   if (insights.length === 0) {
+    if (!hasTransactions) {
+      return (
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center space-x-3">
+          <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+            <Info className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-slate-900 dark:text-white">No Insights Yet</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Add transactions and budgets to generate real-time AI & rule-based financial insights.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center space-x-3">
         <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">

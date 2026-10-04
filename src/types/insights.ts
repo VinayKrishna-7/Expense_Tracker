@@ -10,7 +10,7 @@ export interface FinancialInsight {
 
 export interface FinancialHealthScore {
   score: number;
-  grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F';
+  grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F' | 'None';
   breakdown: {
     savingsRateScore: number;
     budgetDisciplineScore: number;

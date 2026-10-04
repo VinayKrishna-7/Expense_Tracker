@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { MobileNav } from './MobileNav';
-import { NotificationCenter } from './NotificationCenter';
 import { CommandPalette } from './CommandPalette';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 import { TransactionFormModal } from '../transactions/TransactionFormModal';
@@ -22,7 +21,6 @@ export const AppLayout: React.FC = () => {
 
   // Modal states
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
 
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
@@ -47,7 +45,6 @@ export const AppLayout: React.FC = () => {
     },
     onCloseModals: () => {
       setIsCommandPaletteOpen(false);
-      setIsNotificationCenterOpen(false);
       setIsShortcutsModalOpen(false);
       setIsTransactionModalOpen(false);
       setIsBudgetModalOpen(false);
@@ -79,7 +76,6 @@ export const AppLayout: React.FC = () => {
         {/* Topbar */}
         <Topbar
           onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-          onOpenNotifications={() => setIsNotificationCenterOpen(true)}
           onOpenNewTransaction={handleOpenAddExpense}
           onOpenShortcuts={() => setIsShortcutsModalOpen(true)}
         />
@@ -101,11 +97,6 @@ export const AppLayout: React.FC = () => {
       <MobileNav onOpenNewTransaction={handleOpenAddExpense} />
 
       {/* Global Slideout Panels & Modals */}
-      <NotificationCenter
-        isOpen={isNotificationCenterOpen}
-        onClose={() => setIsNotificationCenterOpen(false)}
-      />
-
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}

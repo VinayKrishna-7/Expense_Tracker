@@ -317,6 +317,7 @@ class ApiClient {
         const accounts = AccountService.getAccounts(userId);
         const txs = TransactionService.getTransactions(userId);
         const subs = SubscriptionService.getSubscriptions(userId);
+        const budgets = BudgetService.getAll();
 
         const assets = accounts
           .filter((a) => !a.isLiability && a.type !== 'credit_card' && a.type !== 'loan')
@@ -411,6 +412,42 @@ class ApiClient {
         }
 
         // Health score calculation
+        const hasFinancialData =
+          txs.length > 0 || assets > 0 || liabilities > 0 || budgets.length > 0;
+
+        if (!hasFinancialData) {
+          return {
+            netWorth: {
+              total: 0,
+              assets: 0,
+              liabilities: 0,
+            },
+            forecast: {
+              projectedMonthEndExpense: 0,
+              daysElapsed,
+              daysRemaining,
+              dailySpendVelocity: 0,
+            },
+            healthScore: {
+              score: 0,
+              grade: 'None',
+              breakdown: {
+                savingsRateScore: 0,
+                budgetDisciplineScore: 0,
+                liquidityBufferScore: 0,
+                debtRatioScore: 0,
+              },
+              metrics: {
+                savingsRatePercent: 0,
+                budgetAdherencePercent: 0,
+                monthsOfRunway: 0,
+                netWorth: 0,
+              },
+            },
+            insights: [],
+          };
+        }
+
         const savingsRate = monthIncome > 0 ? Math.max(0, ((monthIncome - monthExpenses) / monthIncome) * 100) : 15;
         const savingsScore = Math.min(35, Math.round((savingsRate / 20) * 35));
         const runway = monthExpenses > 0 ? assets / monthExpenses : 6;

@@ -15,16 +15,20 @@ export const FinancialHealthScoreCard: React.FC<FinancialHealthScoreCardProps> =
     return <div className="h-44 bg-slate-100 dark:bg-slate-800/50 rounded-2xl animate-pulse" />;
   }
 
-  const score = healthScore?.score || 78;
-  const grade = healthScore?.grade || 'B';
-  const breakdown = healthScore?.breakdown || {
-    savingsRateScore: 25,
-    budgetDisciplineScore: 25,
-    liquidityBufferScore: 15,
-    debtRatioScore: 15,
-  };
+  const hasScore = !!healthScore && healthScore.grade !== 'None' && healthScore.score > 0;
+  const score = hasScore ? healthScore.score : 0;
+  const grade = hasScore ? healthScore.grade : 'None';
+  const breakdown = hasScore
+    ? healthScore.breakdown
+    : {
+        savingsRateScore: 0,
+        budgetDisciplineScore: 0,
+        liquidityBufferScore: 0,
+        debtRatioScore: 0,
+      };
 
-  const getScoreColor = (s: number) => {
+  const getScoreColor = (s: number, g: string) => {
+    if (g === 'None' || s === 0) return 'text-slate-400 dark:text-slate-500 border-slate-300 dark:border-slate-700';
     if (s >= 80) return 'text-emerald-600 dark:text-emerald-400 border-emerald-500';
     if (s >= 65) return 'text-indigo-600 dark:text-indigo-400 border-indigo-500';
     if (s >= 50) return 'text-amber-500 border-amber-500';
@@ -39,15 +43,15 @@ export const FinancialHealthScoreCard: React.FC<FinancialHealthScoreCardProps> =
             FinTech Health Score
           </span>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
-            Grade {grade} ({score}/100)
+            {grade === 'None' ? 'Grade None (0/100)' : `Grade ${grade} (${score}/100)`}
           </h3>
         </div>
         <div
-          className={`w-12 h-12 rounded-full border-4 flex items-center justify-center font-black text-base ${getScoreColor(
-            score
-          )}`}
+          className={`w-12 h-12 rounded-full border-4 flex items-center justify-center font-black ${
+            grade === 'None' ? 'text-xs' : 'text-base'
+          } ${getScoreColor(score, grade)}`}
         >
-          {grade}
+          {grade === 'None' ? 'None' : grade}
         </div>
       </div>
 
@@ -104,6 +108,12 @@ export const FinancialHealthScoreCard: React.FC<FinancialHealthScoreCardProps> =
           </div>
         </div>
       </div>
+
+      {!hasScore && (
+        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-3 text-center">
+          No financial activity recorded yet. Add transactions to calculate your score.
+        </p>
+      )}
     </div>
   );
 };

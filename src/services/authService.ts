@@ -82,19 +82,10 @@ export class AuthService {
       currency,
       weekStartsOn: 'monday',
       dateFormat: 'DD/MM/YYYY',
-      enableNotifications: true,
-      soundEnabled: true,
+      enableNotifications: false,
+      soundEnabled: false,
     });
-    StorageService.setItem(STORAGE_KEYS.getUserNotificationsKey(userId), [
-      {
-        id: `notif-welcome-${Date.now()}`,
-        title: 'Welcome to ExpenseFlow 🎉',
-        message: 'Your personal finance account is ready. Add your first transaction or create a budget to get started.',
-        type: 'system',
-        read: false,
-        timestamp: new Date().toISOString(),
-      },
-    ]);
+    StorageService.setItem(STORAGE_KEYS.getUserNotificationsKey(userId), []);
   }
 
   /**

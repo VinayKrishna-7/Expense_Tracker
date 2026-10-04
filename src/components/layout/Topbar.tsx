@@ -1,37 +1,36 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  Bell,
   Search,
   Plus,
   Settings,
   HelpCircle,
   LogOut,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Dropdown, DropdownItem } from '../ui/Dropdown';
-import { useNotificationStore } from '../../store/useNotificationStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useTheme } from '../../hooks/useTheme';
 import { reloadAllUserStores } from '../../utils/userStoreSync';
 
 interface TopbarProps {
   onOpenCommandPalette: () => void;
-  onOpenNotifications: () => void;
   onOpenNewTransaction: () => void;
   onOpenShortcuts: () => void;
 }
 
 export const Topbar: React.FC<TopbarProps> = ({
   onOpenCommandPalette,
-  onOpenNotifications,
   onOpenNewTransaction,
   onOpenShortcuts,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const unreadCount = useNotificationStore((s) => s.unreadCount());
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const { isDark, toggleTheme } = useTheme();
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -115,16 +114,18 @@ export const Topbar: React.FC<TopbarProps> = ({
           Add Record
         </Button>
 
-        {/* Notifications Bell */}
+        {/* Theme Toggle (Icon Only) */}
         <button
           type="button"
-          onClick={onOpenNotifications}
-          aria-label="Open notifications"
-          className="relative p-2 rounded-lg text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+          onClick={toggleTheme}
+          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="p-2 rounded-lg text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
         >
-          <Bell size={18} />
-          {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-brand-500 rounded-full ring-2 ring-white dark:ring-surface-900 animate-pulse" />
+          {isDark ? (
+            <Sun size={18} className="text-amber-400 hover:text-amber-300 transition-transform duration-200 hover:rotate-45" />
+          ) : (
+            <Moon size={18} className="text-surface-600 dark:text-surface-300 hover:text-surface-900 transition-transform duration-200 hover:-rotate-12" />
           )}
         </button>
 

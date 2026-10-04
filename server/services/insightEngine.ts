@@ -10,7 +10,7 @@ export interface Insight {
 
 export interface FinancialHealthScore {
   score: number; // 0 to 100
-  grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F';
+  grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F' | 'None';
   breakdown: {
     savingsRateScore: number; // max 35
     budgetDisciplineScore: number; // max 25
@@ -209,6 +209,40 @@ export function generateFinancialInsights(input: InsightEngineInput): {
 
   const netWorth = totalAssets - totalLiabilities;
 
+  const hasFinancialData =
+    input.transactions.length > 0 ||
+    totalAssets > 0 ||
+    totalLiabilities > 0 ||
+    input.budgets.length > 0;
+
+  if (!hasFinancialData) {
+    return {
+      insights: [],
+      healthScore: {
+        score: 0,
+        grade: 'None',
+        breakdown: {
+          savingsRateScore: 0,
+          budgetDisciplineScore: 0,
+          liquidityBufferScore: 0,
+          debtRatioScore: 0,
+        },
+        metrics: {
+          savingsRatePercent: 0,
+          budgetAdherencePercent: 0,
+          monthsOfRunway: 0,
+          netWorth: 0,
+        },
+      },
+      forecast: {
+        projectedMonthEndExpense: 0,
+        daysElapsed,
+        daysRemaining,
+        dailySpendVelocity: 0,
+      },
+    };
+  }
+
   // Savings Rate Score (0 - 35)
   let savingsRatePercent = 0;
   let savingsRateScore = 0;
@@ -218,7 +252,7 @@ export function generateFinancialInsights(input: InsightEngineInput): {
     // 20% savings rate gives full score 35, linear from 0 to 20%
     savingsRateScore = Math.min(35, Math.round((savingsRatePercent / 20) * 35));
   } else {
-    savingsRateScore = 15; // default neutral if no income logged yet
+    savingsRateScore = 15; // default neutral if transactions exist but no income logged yet
   }
 
   // Budget Discipline Score (0 - 25)
