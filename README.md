@@ -1,6 +1,6 @@
 # ExpenseFlow
 
-A full-stack personal finance and expense management platform built with React, TypeScript, Tailwind CSS, TanStack Query, Express, and Prisma.
+A clean and intuitive personal finance manager to track daily expenses, manage accounts, monitor budgets, and achieve your savings goals.
 
 ---
 

@@ -2,7 +2,7 @@
   "name": "expenseflow-react-tracker",
   "private": true,
   "version": "1.0.0",
-  "description": "Production-grade React 18 FinTech personal finance and expense management platform with TypeScript, Tailwind CSS, TanStack Query, Zustand, and Recharts",
+  "description": "A clean and intuitive personal finance manager to track daily expenses, manage accounts, monitor budgets, and achieve your savings goals.",
   "author": "Vinay Krishna",
   "license": "MIT",
   "keywords": [
