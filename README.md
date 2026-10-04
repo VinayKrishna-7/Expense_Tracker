@@ -1,6 +1,6 @@
 # ExpenseFlow
 
-A clean and intuitive personal finance manager to track daily expenses, manage accounts, monitor budgets, and achieve your savings goals.
+A clean and personal finance manager to track daily expenses, manage accounts, monitor budgets, and achieve your savings goals.
 
 ---
 
